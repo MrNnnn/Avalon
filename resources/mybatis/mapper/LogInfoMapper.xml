@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="LogInfoMapper">
+	<!-- 保存日志 -->
+	<insert id="save" parameterType="Log">
+		insert into Fate_Log_Info(
+			createTime,
+			ipAddress,
+			logLevel,
+			message,
+			userName
+		)values(
+			#{createTime},
+			#{ipAddress},
+			#{logLevel},
+			#{message},
+			#{userName}
+		)
+	</insert>
+</mapper>

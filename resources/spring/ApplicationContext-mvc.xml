@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd	
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<mvc:annotation-driven/>	
+	<mvc:resources location="/static/" mapping="/static/**"></mvc:resources>
+	<context:component-scan base-package="com.fate.controller" />
+	<!-- 系统日志跟踪功能 -->
+	<bean id="log4JDBCImpl" class="com.fate.log.impl.Log4JDBCImpl" >
+		<property name="rootLogLevel" value="ERROR"/>
+		<property name="customLogLevel">
+           <map>
+              <entry key="com.fate.service.impl" value="TRACE" />
+           </map>
+       </property>
+	</bean>
+	<mvc:interceptors>
+		<!-- 日志记录 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/management/**" />
+			<mvc:mapping path="/index"/>
+			<bean class="com.fate.log.spring.LogInterceptor" >
+				<property name="logAPI" ref="log4JDBCImpl"/>
+			</bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+	
+	<!-- 上传拦截，如最大上传值及最小上传值 -->
+	  <bean id="multipartResolver"   class="org.springframework.web.multipart.commons.CommonsMultipartResolver" >   
+		  <property name="maxUploadSize">    
+	          <value>104857600</value>    
+	       </property>   
+	        <property name="maxInMemorySize">    
+	            <value>4096</value>    
+	        </property>   
+	         <property name="defaultEncoding">    
+	            <value>utf-8</value>    
+	        </property> 
+    </bean>  
+	<!-- 支持 Shiro对Controller的方法级AOP安全控制 begin-->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+	
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+    	<property name="securityManager" ref="securityManager"/>
+	</bean>
+	<!-- 支持 Shiro对Controller的方法级AOP安全控制 end  -->  
+</beans>
